@@ -294,7 +294,6 @@
       font-weight: 500;
     }
 
-    /* --- MODERN YENİ L*a*b* KART TASARIMI --- */
     .lab-card {
       display: none;
       margin-top: 12px;
@@ -355,7 +354,6 @@
       font-weight: 700;
     }
 
-    /* Meraklısına Not & Leaderboard */
     .info-container, .leaderboard-container {
       width: 100%;
       max-width: 420px;
@@ -403,7 +401,6 @@
     .info-content p { margin-bottom: 8px; }
     .info-content ul { margin-left: 18px; margin-bottom: 8px; }
 
-    /* Liderlik Tablosu */
     .leaderboard-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
@@ -437,7 +434,6 @@
     .leaderboard-item .name { flex: 1; color: #1e293b; font-weight: 600; }
     .leaderboard-item .score { font-weight: 700; color: #10b981; font-variant-numeric: tabular-nums; }
 
-    /* Modal Popup */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -553,7 +549,6 @@
       <div id="accuracyScore" class="accuracy-score"></div>
       <div id="detailText" class="detail-text">Sürgüleri ayarlayın ve Kontrol Et butonuna basın.</div>
       
-      <!-- Modernize Edilmiş L*a*b* Kartı -->
       <div id="labCard" class="lab-card">
         <div class="lab-row">
           <span class="lab-badge badge-target">HEDEF L*a*b*</span>
@@ -935,20 +930,6 @@
       } catch (e) {}
     }
 
-    window.addEventListener('load', () => {
-      initDeviceImage();
-      const imgOdak = document.getElementById('imgOdak');
-      const imgXrite = document.getElementById('imgXrite');
-      
-      if (imgOdak.complete) convertImgToBase64(imgOdak);
-      else imgOdak.onload = () => convertImgToBase64(imgOdak);
-
-      if (imgXrite.complete) convertImgToBase64(imgXrite);
-      else imgXrite.onload = () => convertImgToBase64(imgXrite);
-
-      setupStepButtons();
-    });
-
     function generateNewTarget() {
       let rawC = Math.floor(Math.random() * 101);
       let rawM = Math.floor(Math.random() * 101);
@@ -1072,7 +1053,6 @@
       const formatVal = (val) => val.toFixed(1);
       const formatDiff = (val) => (val >= 0 ? `+${val.toFixed(1)}` : val.toFixed(1));
 
-      // Modern Formatlama Düzeni
       labTargetVal.innerHTML = `<span>L*:</span>${formatVal(targetLab.L)} <span>a*:</span>${formatVal(targetLab.a)} <span>b*:</span>${formatVal(targetLab.b)}`;
       labSampleVal.innerHTML = `<span>L*:</span>${formatVal(sampleLab.L)} <span>a*:</span>${formatVal(sampleLab.a)} <span>b*:</span>${formatVal(sampleLab.b)}`;
       labDiffVal.innerHTML = `<span>ΔL*:</span>${formatDiff(dL)} <span>Δa*:</span>${formatDiff(da)} <span>Δb*:</span>${formatDiff(db)}`;
@@ -1096,7 +1076,10 @@
         accuracyScore.style.color = "#ef4444";
       }
 
-      if (window.promptNicknameAndSave) {
+      // KURAL: Sadece Haklar Bittiğinde VEYA Delta E < 1.0 İstisnasında Kayıt Açılır
+      const shouldPromptSave = (remainingAttempts === 0) || (deltaE < 1.0);
+
+      if (shouldPromptSave && window.promptNicknameAndSave) {
         window.promptNicknameAndSave(currentDeltaE);
       }
 
@@ -1210,6 +1193,20 @@
         alert("Resim indirilirken bir hata oluştu.");
       });
     }
+
+    window.addEventListener('load', () => {
+      initDeviceImage();
+      setupStepButtons();
+      
+      const imgOdak = document.getElementById('imgOdak');
+      const imgXrite = document.getElementById('imgXrite');
+      
+      if (imgOdak.complete) convertImgToBase64(imgOdak);
+      else imgOdak.onload = () => convertImgToBase64(imgOdak);
+
+      if (imgXrite.complete) convertImgToBase64(imgXrite);
+      else imgXrite.onload = () => convertImgToBase64(imgXrite);
+    });
 
     cSlider.addEventListener('input', updateSampleColor);
     mSlider.addEventListener('input', updateSampleColor);
