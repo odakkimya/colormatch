@@ -1042,9 +1042,9 @@
 
       const targetLab = rgbToLab(targetRgb.r, targetRgb.g, targetRgb.b);
       const sampleLab = rgbToLab(sampleRgb.r, sampleRgb.g, sampleRgb.b);
-      const deltaE = calculateDeltaE2000(targetLab, sampleLab);
+      const numericDeltaE = calculateDeltaE2000(targetLab, sampleLab);
 
-      currentDeltaE = deltaE.toFixed(2);
+      currentDeltaE = numericDeltaE.toFixed(2);
 
       const dL = sampleLab.L - targetLab.L;
       const da = sampleLab.a - targetLab.a;
@@ -1065,10 +1065,10 @@
 
       const targetText = `Hedef: C:%${currentTarget.c}, M:%${currentTarget.m}, Y:%${currentTarget.y}, K:%${currentTarget.k}`;
 
-      if (deltaE < 1.0) {
+      if (numericDeltaE < 1.0) {
         accuracyScore.innerText = `⭐ ΔE00 = ${currentDeltaE}`;
         accuracyScore.style.color = "#10b981";
-      } else if (deltaE <= 2.5) {
+      } else if (numericDeltaE <= 2.5) {
         accuracyScore.innerText = `ΔE00 = ${currentDeltaE}`;
         accuracyScore.style.color = "#10b981";
       } else {
@@ -1076,21 +1076,23 @@
         accuracyScore.style.color = "#ef4444";
       }
 
-      // KURAL: Sadece Haklar Bittiğinde VEYA Delta E < 1.0 İstisnasında Kayıt Açılır
-      const shouldPromptSave = (remainingAttempts === 0) || (deltaE < 1.0);
+      // KURAL: Denemeler devam ederken SADECE Delta E < 1.0 ise sorar.
+      // Denemeler bittiğinde (0 hak kaldığında) HER DURUMDA sorar.
+      const isPerfectMatch = numericDeltaE < 1.0;
+      const isOutOfAttempts = remainingAttempts === 0;
 
-      if (shouldPromptSave && window.promptNicknameAndSave) {
+      if ((isPerfectMatch || isOutOfAttempts) && window.promptNicknameAndSave) {
         window.promptNicknameAndSave(currentDeltaE);
       }
 
-      if (deltaE === 0) {
+      if (numericDeltaE === 0) {
         detailText.innerText = `Kusursuz! Birebir tam eşleşme (ΔE00 = 0.00). (${targetText})`;
         btnCheck.disabled = true;
         btnCheck.innerText = "Tebrikler!";
       } else if (remainingAttempts > 0) {
-        if (deltaE < 1.0) {
+        if (numericDeltaE < 1.0) {
           detailText.innerText = `⭐ Kusursuz Eşleşme! (ΔE00 < 1.0). Kalan hakkınızla ΔE'yi daha da düşürmeyi deneyebilirsiniz. (Kalan hak: ${remainingAttempts})`;
-        } else if (deltaE <= 2.5) {
+        } else if (numericDeltaE <= 2.5) {
           detailText.innerText = `Kabul Edilebilir Tolerans İçinde (ΔE00 ≤ 2.5). Kalan hakkınız: ${remainingAttempts}`;
         } else {
           detailText.innerText = `RED! Tolerans Dışı (ΔE00 > 2.5). Tekrar deneyin (Kalan hak: ${remainingAttempts})`;
@@ -1098,10 +1100,10 @@
         btnCheck.innerText = `Kontrol Et (Hak: ${remainingAttempts})`;
       } else {
         btnCheck.disabled = true;
-        if (deltaE < 1.0) {
+        if (numericDeltaE < 1.0) {
           detailText.innerText = `Tebrikler! ⭐ Kusursuz bir nihai Delta E skoru yakaladınız (ΔE00 < 1.0). (${targetText})`;
           btnCheck.innerText = "Tebrikler!";
-        } else if (deltaE <= 2.5) {
+        } else if (numericDeltaE <= 2.5) {
           detailText.innerText = `Tebrikler! Kabul edilebilir tolerans içinde tamamladınız (ΔE00 ≤ 2.5). (${targetText})`;
           btnCheck.innerText = "Tebrikler!";
         } else {
