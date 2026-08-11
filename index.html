@@ -554,7 +554,7 @@
   <!-- Nickname Modal Popup -->
   <div id="scoreModal" class="modal-overlay">
     <div class="modal-box">
-      <h3>Harika Skor! 🎯</h3>
+      <h3>Skor Kaydı 🎯</h3>
       <p>Skorunuzu Liderlik Tablosuna kaydetmek için lütfen bir takma ad (nickname) girin:</p>
       <input type="text" id="nicknameInput" class="modal-input" placeholder="Nickname..." maxlength="15">
       <button id="saveScoreBtn" class="modal-btn">Skoru Kaydet</button>
@@ -633,8 +633,8 @@
           });
           modal.style.display = "none";
         } catch (e) {
-          console.error("Skor kaydedilerken hata oluştu:", e);
-          alert("Skor kaydedilemedi. Lütfen Firestore kurallarınızı kontrol edin.");
+          console.error("Skor kaydedilirken hata oluştu:", e);
+          alert("Skor kaydedilemedi. Firestore kurallarınızı kontrol edin.");
         } finally {
           saveBtn.disabled = false;
           saveBtn.innerText = "Skoru Kaydet";
@@ -1035,8 +1035,8 @@
         accuracyScore.style.color = "#dc3545";
       }
 
-      // Kabul edilebilir tolerans içindeyse (ΔE <= 2.5) skor kaydetme popup'ını aç
-      if (deltaE <= 2.5 && window.promptNicknameAndSave) {
+      // Her ölçüm sonrasında nickname sorma pop-up'ını tetikler
+      if (window.promptNicknameAndSave) {
         window.promptNicknameAndSave(currentDeltaE);
       }
 
