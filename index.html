@@ -642,7 +642,7 @@
   <!-- Firebase Entegrasyonu -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, getDoc, setDoc, getDocs, deleteDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBjweRfJgswZ8CfRSyrTvxFaFe8FV7tRSk",
@@ -657,6 +657,53 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const scoresRef = collection(db, "scores");
+
+    // Mevcut mükerrer kayıtları otomatik temizleme fonksiyonu
+    async function cleanupDuplicateScores() {
+      try {
+        const snapshot = await getDocs(scoresRef);
+        const userBestScores = {};
+
+        snapshot.forEach((document) => {
+          const data = document.data();
+          const rawNickname = data.nickname || "Isimsiz";
+          const key = rawNickname.trim().toLowerCase();
+          const currentDeltaE = parseFloat(data.deltaE);
+
+          if (!userBestScores[key]) {
+            userBestScores[key] = [];
+          }
+
+          userBestScores[key].push({
+            id: document.id,
+            nickname: rawNickname,
+            deltaE: currentDeltaE
+          });
+        });
+
+        let deletedCount = 0;
+        for (const key in userBestScores) {
+          const userRecords = userBestScores[key];
+          if (userRecords.length > 1) {
+            userRecords.sort((a, b) => a.deltaE - b.deltaE);
+            const recordsToDelete = userRecords.slice(1);
+
+            for (const rec of recordsToDelete) {
+              await deleteDoc(doc(db, "scores", rec.id));
+              deletedCount++;
+            }
+          }
+        }
+        if (deletedCount > 0) {
+          console.log(`Temizlik tamamlandı: ${deletedCount} adet mükerrer kayıt silindi.`);
+        }
+      } catch (e) {
+        console.error("Temizlik sırasında hata oluştu:", e);
+      }
+    }
+
+    // Sayfa açıldığında otomatik olarak eski tekrarları temizle
+    cleanupDuplicateScores();
 
     const topScoresQuery = query(scoresRef, orderBy("deltaE", "asc"), limit(10));
     onSnapshot(topScoresQuery, (snapshot) => {
@@ -703,15 +750,32 @@
 
       saveBtn.onclick = async () => {
         const nickname = input.value.trim() || "Isimsiz";
+        const numericDeltaE = parseFloat(deltaE);
+        
         saveBtn.disabled = true;
         saveBtn.innerText = "Kaydediliyor...";
 
         try {
-          await addDoc(scoresRef, {
-            nickname: nickname,
-            deltaE: parseFloat(deltaE),
-            createdAt: serverTimestamp()
-          });
+          const docId = nickname.toLowerCase().replace(/\s+/g, '');
+          const userDocRef = doc(db, "scores", docId);
+          const docSnap = await getDoc(userDocRef);
+          let shouldSave = true;
+
+          if (docSnap.exists()) {
+            const existingData = docSnap.data();
+            if (existingData.deltaE <= numericDeltaE) {
+              shouldSave = false;
+            }
+          }
+
+          if (shouldSave) {
+            await setDoc(userDocRef, {
+              nickname: nickname,
+              deltaE: numericDeltaE,
+              createdAt: serverTimestamp()
+            });
+          }
+          
           modal.style.display = "none";
         } catch (e) {
           console.error("Skor kaydedilirken hata oluştu:", e);
@@ -1103,7 +1167,6 @@
         accuracyScore.style.color = "#ef4444";
       }
 
-      // KURAL: Skor kaydı SADECE 3 hak bittiğinde (0 hak kaldığında) tetiklenir.
       if (remainingAttempts === 0 && window.promptNicknameAndSave) {
         window.promptNicknameAndSave(currentDeltaE);
       }
