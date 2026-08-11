@@ -137,7 +137,6 @@
       color: #777;
     }
 
-    /* Hizalanmış ve Süresi Kısaltılmış Cihaz Animasyonu */
     #deviceAnim {
       position: absolute;
       width: 780px;
@@ -309,13 +308,11 @@
       color: #333;
     }
 
-    /* Meraklısına Not Bölümü */
-    .info-container {
+    /* Meraklısına Not & Leaderboard */
+    .info-container, .leaderboard-container {
       width: 100%;
       max-width: 420px;
       margin-top: 16px;
-      user-select: text;
-      -webkit-user-select: text;
     }
 
     .btn-info-toggle {
@@ -354,25 +351,95 @@
       padding-bottom: 3px;
     }
 
-    .info-content h4:first-child {
-      margin-top: 0;
+    .info-content h4:first-child { margin-top: 0; }
+    .info-content p { margin-bottom: 8px; }
+    .info-content ul { margin-left: 18px; margin-bottom: 8px; }
+
+    /* Liderlik Tablosu Stilleri */
+    .leaderboard-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     }
 
-    .info-content p {
-      margin-bottom: 8px;
+    .leaderboard-card h3 {
+      font-size: 16px;
+      color: #0099cc;
+      margin-bottom: 10px;
+      text-align: center;
     }
 
-    .info-content ul {
-      margin-left: 18px;
-      margin-bottom: 8px;
+    .leaderboard-list {
+      list-style: none;
+      font-size: 13px;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 8px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .leaderboard-item:last-child { border-bottom: none; }
+    .leaderboard-item .rank { font-weight: bold; width: 24px; color: #666; }
+    .leaderboard-item .name { flex: 1; color: #333; font-weight: 500; }
+    .leaderboard-item .score { font-family: monospace; font-weight: bold; color: #28a745; }
+
+    /* Modal (Popup) Stilleri */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .modal-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .modal-box h3 { color: #0099cc; margin-bottom: 8px; }
+    .modal-box p { font-size: 13px; color: #666; margin-bottom: 14px; }
+    
+    .modal-input {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-bottom: 14px;
+      outline: none;
+      text-align: center;
+    }
+
+    .modal-btn {
+      width: 100%;
+      padding: 10px;
+      background: #28a745;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
   <div id="captureArea">
-    <!-- Ölçüm Cihazı Animasyon Elemanı -->
-    <img id="deviceAnim" src="spectro.png" alt="Spektrofotometre">
+    <img id="deviceAnim" src="spectro.PNG" alt="Spektrofotometre">
 
     <div class="logo-bar">
       <img id="imgOdak" class="logo-odak" src="ODAKLOGO.png" alt="Odak Kimya Logo">
@@ -453,6 +520,16 @@
     <button id="btnDownload" class="main-btn btn-download" onclick="downloadScreenshot()" disabled>Resmi İndir 📸</button>
   </div>
 
+  <!-- Liderlik Tablosu -->
+  <div class="leaderboard-container">
+    <div class="leaderboard-card">
+      <h3>🏆 En İyi ΔE00 Skorları (Top 10)</h3>
+      <ul id="leaderboardList" class="leaderboard-list">
+        <li class="leaderboard-item">Yükleniyor...</li>
+      </ul>
+    </div>
+  </div>
+
   <!-- Meraklısına Not Bölümü -->
   <div class="info-container">
     <button class="btn-info-toggle" onclick="toggleInfo()">
@@ -460,7 +537,6 @@
       <span id="infoArrow">▼</span>
     </button>
     <div id="infoContent" class="info-content">
-      
       <h4>1. CMYK Modeli ve Baskı Teknolojisindeki Yeri</h4>
       <p>Ekranlar toplamsal (RGB) ışık karışımını kullanırken, matbaa ve ambalaj baskı makineleri <strong>eksiltmeli (CMYK) mürekkep karışımını</strong> kullanır. Cyan, Magenta ve Yellow mürekkepleri kağıttan yansıyan ışığın belirli dalga boylarını emer. Key (Siyah) ise kontratı ve koyu ton derinliğini sağlamak üzere dördüncü kanal olarak eklenir.</p>
 
@@ -472,10 +548,102 @@
         <li><strong>2° Standart Gözlemci (CIE 1931):</strong> Küçük kontrol alanlarının (3x3 mm renk skalaları) ölçüldüğü ve ISO standartlarının (ISO 13655 / ISO 12647) şart koştuğu <strong>Baskı, Ambalaj ve Grafik Sanatlar</strong> sektöründe varsayılan olarak tercih edilir.</li>
         <li><strong>10° Standart Gözlemci (CIE 1964):</strong> Geniş yüzeyli parçaların renk eşleşmesinin kritik olduğu <strong>Otomotiv, Tekstil, Plastik ve Boya</strong> sektörlerinde geniş alan renk algısını daha iyi yansıttığı için tercih edilir.</li>
       </ul>
-
     </div>
   </div>
 
+  <!-- Nickname Modal Popup -->
+  <div id="scoreModal" class="modal-overlay">
+    <div class="modal-box">
+      <h3>Harika Skor! 🎯</h3>
+      <p>Skorunuzu Liderlik Tablosuna kaydetmek için lütfen bir takma ad (nickname) girin:</p>
+      <input type="text" id="nicknameInput" class="modal-input" placeholder="Nickname..." maxlength="15">
+      <button id="saveScoreBtn" class="modal-btn">Skoru Kaydet</button>
+    </div>
+  </div>
+
+  <!-- Firebase Entegrasyonu -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjweRfJgswZ8CfRSyrTvxFaFe8FV7tRSk",
+      authDomain: "colormatch-ff19c.firebaseapp.com",
+      projectId: "colormatch-ff19c",
+      storageBucket: "colormatch-ff19c.firebasestorage.app",
+      messagingSenderId: "522583427136",
+      appId: "1:522583427136:web:f8ac210d3525975e8eb7a5",
+      measurementId: "G-6SJNV7TXHY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const scoresRef = collection(db, "scores");
+
+    // Liderlik Tablosunu Canlı Dinle (En Düşük Delta E En Üstte)
+    const topScoresQuery = query(scoresRef, orderBy("deltaE", "asc"), limit(10));
+    onSnapshot(topScoresQuery, (snapshot) => {
+      const listEl = document.getElementById("leaderboardList");
+      listEl.innerHTML = "";
+      
+      if (snapshot.empty) {
+        listEl.innerHTML = '<li class="leaderboard-item">Henüz kayıtlı skor yok. İlk siz olun!</li>';
+        return;
+      }
+
+      let rank = 1;
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const item = document.createElement("li");
+        item.className = "leaderboard-item";
+        item.innerHTML = `
+          <span class="rank">#${rank}</span>
+          <span class="name">${escapeHtml(data.nickname)}</span>
+          <span class="score">ΔE ${parseFloat(data.deltaE).toFixed(2)}</span>
+        `;
+        listEl.appendChild(item);
+        rank++;
+      });
+    });
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, function(m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]; });
+    }
+
+    // Modal ve Skor Kaydetme İşlemi
+    window.promptNicknameAndSave = function(deltaE) {
+      const modal = document.getElementById("scoreModal");
+      const saveBtn = document.getElementById("saveScoreBtn");
+      const input = document.getElementById("nicknameInput");
+
+      modal.style.display = "flex";
+      input.value = "";
+      input.focus();
+
+      saveBtn.onclick = async () => {
+        const nickname = input.value.trim() || "Isimsiz";
+        saveBtn.disabled = true;
+        saveBtn.innerText = "Kaydediliyor...";
+
+        try {
+          await addDoc(scoresRef, {
+            nickname: nickname,
+            deltaE: parseFloat(deltaE),
+            createdAt: serverTimestamp()
+          });
+          modal.style.display = "none";
+        } catch (e) {
+          console.error("Skor kaydedilerken hata oluştu:", e);
+          alert("Skor kaydedilemedi. Lütfen Firestore kurallarınızı kontrol edin.");
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.innerText = "Skoru Kaydet";
+        }
+      };
+    };
+  </script>
+
+  <!-- Ana Oyun Mantığı Script -->
   <script>
     let currentTarget = null;
     let currentDeltaE = 0;
@@ -515,7 +683,6 @@
       }
     }
 
-    // `spectro.png` Yoksa Otomatik Spektrofotometre Simgesi Üretme
     function initDeviceImage() {
       deviceAnim.onerror = () => {
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -528,7 +695,6 @@
       };
     }
 
-    // Hizalanmış ve Hızlandırılmış Ölçüm Animasyonu
     function startMeasurementProcess() {
       if (!currentTarget || remainingAttempts <= 0 || btnCheck.disabled) return;
 
@@ -539,10 +705,8 @@
       const captureRect = document.getElementById('captureArea').getBoundingClientRect();
 
       const targetLeft = (sampleRect.left - captureRect.left) + (sampleRect.width / 2);
-      // Cihaz ucu numuneye denk gelsin diye hedef Y seviyesi 100px aşağı çekildi
       const targetTop = (sampleRect.top - captureRect.top) + (sampleRect.height / 2) + 100;
 
-      // Başlangıç Konumu: Alt dış alan
       const startLeft = targetLeft;
       const startTop = captureRect.height + 450;
 
@@ -550,20 +714,17 @@
       deviceAnim.style.top = `${startTop}px`;
       deviceAnim.classList.remove('active');
 
-      // 1. Adım: Yükselme (1.8 saniye)
       setTimeout(() => {
         deviceAnim.classList.add('active');
         deviceAnim.style.left = `${targetLeft}px`;
         deviceAnim.style.top = `${targetTop}px`;
       }, 50);
 
-      // 2. Adım: Ölçüm ve Işık (1.2 saniye)
       setTimeout(() => {
         detailText.innerText = "Renk spektrometre ile ölçülüyor...";
         sampleBox.classList.add('measuring');
       }, 1900);
 
-      // 3. Adım: Geri Çekilme ve Sonuç
       setTimeout(() => {
         sampleBox.classList.remove('measuring');
         deviceAnim.style.top = `${startTop}px`;
@@ -580,7 +741,6 @@
       }, 3100);
     }
 
-    // CMYK -> sRGB Standart Dönüşümü
     function cmykToRgb(c, m, y, k) {
       const cN = c / 100;
       const mN = m / 100;
@@ -594,7 +754,6 @@
       return { r, g, b };
     }
 
-    // sRGB -> CIE Lab Algısal Dönüşümü
     function rgbToLab(r, g, b) {
       let rNorm = r / 255;
       let gNorm = g / 255;
@@ -621,7 +780,6 @@
       return { L, a, b: bLab };
     }
 
-    // CIEDE2000 (Delta E 00) Algoritması
     function calculateDeltaE2000(lab1, lab2) {
       const rad2deg = (rad) => rad * (180 / Math.PI);
       const deg2rad = (deg) => deg * (Math.PI / 180);
@@ -875,6 +1033,11 @@
       } else {
         accuracyScore.innerText = `ΔE00 = ${currentDeltaE}`;
         accuracyScore.style.color = "#dc3545";
+      }
+
+      // Kabul edilebilir tolerans içindeyse (ΔE <= 2.5) skor kaydetme popup'ını aç
+      if (deltaE <= 2.5 && window.promptNicknameAndSave) {
+        window.promptNicknameAndSave(currentDeltaE);
       }
 
       if (deltaE === 0) {
