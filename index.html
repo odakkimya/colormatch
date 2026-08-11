@@ -434,6 +434,7 @@
     .leaderboard-item .name { flex: 1; color: #1e293b; font-weight: 600; }
     .leaderboard-item .score { font-weight: 700; color: #10b981; font-variant-numeric: tabular-nums; }
 
+    /* Modal Popup Ve Kapatma Butonu Styles */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -454,6 +455,26 @@
       max-width: 340px;
       text-align: center;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      position: relative;
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      background: none;
+      border: none;
+      font-size: 22px;
+      font-weight: 700;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+      transition: color 0.15s ease;
+    }
+
+    .modal-close-btn:hover {
+      color: #0f172a;
     }
 
     .modal-box h3 { color: #0099cc; margin-bottom: 8px; font-weight: 700; }
@@ -607,9 +628,10 @@
     </div>
   </div>
 
-  <!-- Nickname Modal Popup -->
+  <!-- Nickname Modal Popup (Çarpı Butonu Eklendi) -->
   <div id="scoreModal" class="modal-overlay">
     <div class="modal-box">
+      <button class="modal-close-btn" onclick="closeScoreModal()" aria-label="Kapat">&times;</button>
       <h3>Skor Kaydı 🎯</h3>
       <p>Skorunuzu Liderlik Tablosuna kaydetmek için lütfen bir takma ad (nickname) girin:</p>
       <input type="text" id="nicknameInput" class="modal-input" placeholder="Nickname..." maxlength="15">
@@ -664,6 +686,11 @@
     function escapeHtml(text) {
       return text.replace(/[&<>"']/g, function(m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]; });
     }
+
+    window.closeScoreModal = function() {
+      const modal = document.getElementById("scoreModal");
+      modal.style.display = "none";
+    };
 
     window.promptNicknameAndSave = function(deltaE) {
       const modal = document.getElementById("scoreModal");
@@ -1076,12 +1103,8 @@
         accuracyScore.style.color = "#ef4444";
       }
 
-      // KURAL: Denemeler devam ederken SADECE Delta E < 1.0 ise sorar.
-      // Denemeler bittiğinde (0 hak kaldığında) HER DURUMDA sorar.
-      const isPerfectMatch = numericDeltaE < 1.0;
-      const isOutOfAttempts = remainingAttempts === 0;
-
-      if ((isPerfectMatch || isOutOfAttempts) && window.promptNicknameAndSave) {
+      // KURAL: Skor kaydı SADECE 3 hak bittiğinde (0 hak kaldığında) tetiklenir.
+      if (remainingAttempts === 0 && window.promptNicknameAndSave) {
         window.promptNicknameAndSave(currentDeltaE);
       }
 
